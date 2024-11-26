@@ -41,14 +41,17 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'phonenumber_field',
+    'rest_framework',
+    'rest_framework.authtoken',
     'corsheaders',
     'users',
     'offers',
     'orders',
     'reviews',
-    'rest_framework',
-    'rest_framework.authtoken'
 ]
+
+AUTH_USER_MODEL = 'users.CustomUser'
+
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',

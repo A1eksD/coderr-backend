@@ -49,8 +49,20 @@ class LoginViewSet(viewsets.ModelViewSet):
                 "username": user.username,
                 "token": token.key
             }
-            logger.debug(f"Response Data: {userData}")  # Logge die Antwort
+            logger.debug(f"Response Data: {userData}")
 
             return Response({"message": "Login successful", "data": userData}, status=status.HTTP_200_OK)
         return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
 
+
+class ProfileDataViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    permission_classes = (AllowAny,)
+
+    def retrieve(self, request, pk=None):
+        try:
+            user = CustomUser.objects.get(pk=pk)
+            serializer = self.serializer_class(user)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        except CustomUser.DoesNotExist:
+            return Response({"error": "User not found"}, status=status.HTTP_404_NOT_FOUND)
