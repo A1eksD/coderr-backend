@@ -5,12 +5,10 @@ from users.serializers import UserSerializer
 from rest_framework.authtoken.models import Token
 from rest_framework.response import Response
 from rest_framework import status
-from rest_framework.permissions import AllowAny
-from django.contrib.auth import login as auth_login
-from django.contrib.auth import authenticate, login
+from rest_framework.permissions import AllowAny, IsAuthenticatedOrReadOnly
+from django.contrib.auth import login, authenticate, logout
 import logging
 logger = logging.getLogger(__name__)
-
 
 
 
@@ -39,8 +37,10 @@ class LoginViewSet(viewsets.ModelViewSet):
         username = request.data.get('username')
         password = request.data.get('password')
         
+        # user = CustomUser.objects.get(username=username, password=password)
         user = authenticate(request, username=username, password=password)
-            
+
+        
         if user is not None:
             login(request, user)
             token, created = Token.objects.get_or_create(user=user)
@@ -49,15 +49,22 @@ class LoginViewSet(viewsets.ModelViewSet):
                 "username": user.username,
                 "token": token.key
             }
-            logger.debug(f"Response Data: {userData}")
 
             return Response({"message": "Login successful", "data": userData}, status=status.HTTP_200_OK)
-        return Response({"error": "Invalid credentials"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"error": "Invalid username or password"}, status=status.HTTP_400_BAD_REQUEST)
 
+
+class LogoutView(viewsets.ModelViewSet):
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
+    def post(self, request):
+        logout(request)
+        return Response({"message": "Logged out successfully"}, status=status.HTTP_200_OK)
 
 class ProfileDataViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
-    permission_classes = (AllowAny,)
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
 
     def retrieve(self, request, pk=None):
         try:

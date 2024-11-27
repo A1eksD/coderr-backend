@@ -35,7 +35,7 @@ class CustomUser(AbstractUser):
     )
 
     def __str__(self):
-        return f'{self.username, " " ,self.email, " ", self.id}'
+        return f"{self.username} - {self.email} - {self.id}" 
 
 
 
